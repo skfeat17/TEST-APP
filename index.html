@@ -64,6 +64,9 @@
   </div>
 
   <script>
+    if (Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
     const USER_API = "https://globe-chat-api.vercel.app/api/v1/users";
     const token = localStorage.getItem("accessToken");
     const username = "User" + Math.floor(Math.random() * 1000);
@@ -142,9 +145,7 @@ initBeams();
     }
   }
 });
-if (Notification.permission !== "granted") {
-  Notification.requestPermission();
-}
+
 
 
     // Listen for typing events
