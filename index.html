@@ -102,10 +102,10 @@ const USER_API = "https://globe-chat-api.vercel.app/api/v1/users";
 const loginBtn = document.getElementById('loginBtn');
 const statusMessage = document.getElementById('statusMessage');
 
-window.addEventListener('load', () => {
-  const token = localStorage.getItem('accessToken');
-  if (token) window.location.href = 'chat1.html';
-});
+// window.addEventListener('load', () => {
+//   const token = localStorage.getItem('accessToken');
+//   if (token) window.location.href = 'chat1.html';
+// });
 
 loginBtn.addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
@@ -139,8 +139,10 @@ loginBtn.addEventListener('click', async () => {
     }
 
     localStorage.setItem('accessToken', data.data.accessToken);
-    localStorage.setItem('user', JSON.stringify(data.data.user));
-    window.location.href = 'chat1.html';
+    localStorage.setItem('uid', JSON.stringify(data.data.user._id));
+    console.log(data.data.user._id);
+    alert("Login successful!");
+    // window.location.href = 'chat1.html';
   } catch(e) {
     statusMessage.textContent = "Login failed: " + e.message;
     statusMessage.style.display = 'block';
