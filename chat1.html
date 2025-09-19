@@ -38,16 +38,8 @@
     }
 
     @keyframes bounce {
-
-      0%,
-      80%,
-      100% {
-        transform: scale(0);
-      }
-
-      40% {
-        transform: scale(1);
-      }
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
     }
   </style>
 </head>
@@ -72,45 +64,33 @@
   </div>
 
   <script>
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
+    const user = JSON.parse(localStorage.getItem("user")); 
+    if (!user?._id) {
+      console.error("❌ No user in localStorage");
+      return;
     }
+    if (Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
     const USER_API = "https://globe-chat-api.vercel.app/api/v1/users";
     const token = localStorage.getItem("accessToken");
-    const username = JSON.parse(localStorage.getItem("user")).name;
+    const username = "User" + Math.floor(Math.random() * 1000);
 
     const beamsClient = new PusherPushNotifications.Client({
-      instanceId: "e7c78238-d563-465f-ba04-ef4d1157e744",
-    });
+  instanceId: "e7c78238-d563-465f-ba04-ef4d1157e744",
+});
 
-
-
-  async function initBeams(userId, token) {
-    try {
-      await beamsClient.start();
-
-      await beamsClient.setUserId(userId, async (beamsAuthRequest) => {
-        // Call your backend auth endpoint
-        const res = await fetch("https://globe-chat-api.vercel.app/api/v1/users/beams/auth", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`, // your login token
-          },
-        });
-
-        if (!res.ok) throw new Error("Beams auth failed");
-        return res.json(); // must return beams token from backend
-      });
-
-      console.log("✅ Beams registered for user:", userId);
-    } catch (err) {
-      console.error("Beams init error:", err);
-    }
+async function initBeams() {
+  try {
+    await beamsClient.start();
+    await beamsClient.addDeviceInterest(`chat-${user._id}`); // all devices subscribed to "chat"
+    console.log("Beams registered & subscribed!");
+  } catch (err) {
+    console.error("Beams init error:", err);
   }
+}
 
-  const userId = JSON.parse(localStorage.getItem("user"))._id;
-  const jwtToken = localStorage.getItem("accessToken"); 
-  initBeams(userId, jwtToken);
+initBeams();
 
     const pusher = new Pusher("f154a4e3ab24faa32519", {
       cluster: "ap2",
@@ -157,11 +137,19 @@
     });
 
     // Listen for new messages
-    channel.bind("client-new-message", (data) => {
-      if (data.user !== username) {
-        addMessage(`${data.text}`, "received");
-      }
-    });
+ channel.bind("client-new-message", (data) => {
+  if (data.user !== username) {
+    addMessage(`${data.text}`, "received");
+
+    // Show notification via Beams
+    if (Notification.permission === "granted") {
+      new Notification("📩 New Message", {
+        body: `${data.user}: ${data.text}`,
+        icon: "https://cdn-icons-png.flaticon.com/512/726/726623.png"
+      });
+    }
+  }
+});
 
 
 
@@ -192,5 +180,4 @@
     });
   </script>
 </body>
-
 </html>
