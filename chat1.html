@@ -64,11 +64,8 @@
   </div>
 
   <script>
-    const user = JSON.parse(localStorage.getItem("user")); 
-    if (!user?._id) {
-      console.error("❌ No user in localStorage");
-      return;
-    }
+  const uid = localStorage.getItem('userId');
+  console.log(uid);
     if (Notification.permission !== "granted") {
   Notification.requestPermission();
 }
@@ -83,7 +80,7 @@
 async function initBeams() {
   try {
     await beamsClient.start();
-    await beamsClient.addDeviceInterest(`chat-${user._id}`); // all devices subscribed to "chat"
+    await beamsClient.addDeviceInterest(`chat-${uid}`); // all devices subscribed to "chat"
     console.log("Beams registered & subscribed!");
   } catch (err) {
     console.error("Beams init error:", err);
